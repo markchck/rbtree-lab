@@ -44,15 +44,15 @@ node_t *rbtree_insert(rbtree *t, const key_t key)
   node_t *z = t->(node_t *)calloc(1, sizeof(node_t));
   z ->key = key;
 
-  while (x != t->nil) //루트노드의 주소가 nil과 다르면 아래 수행 
-  {
-    y = x;
-    if (z ->key < x->key)
-      x = x->left
-    else
-      x = x-> right
+  // while (x != t->nil) //루트노드의 주소가 nil과 다르면 아래 수행 
+  // {
+  //   y = x;
+  //   if (z ->key < x->key)
+  //     x = x->left;
+  //   else
+  //     x = x-> right;
 
-  }
+  // }
 }
 
 int main(void)
