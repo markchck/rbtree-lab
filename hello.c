@@ -22,6 +22,6 @@ int main(void)
 	// printf("%s\n", s);
 	// printf("%p \n", &(*s));
 
-	char *s = "Emma";
-	char *t = (char *)"emma" ;
+	char *s;
+	printf("%p\n", s);
 }
