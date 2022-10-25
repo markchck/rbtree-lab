@@ -83,15 +83,35 @@ void left_rotation(rbtree *t, node_t *x){
       x->parent = y;
 }
 
-void rbtree_insert_fixup(rbtree *t, node_t *z){
+void right_rotation(rbtree *t, node_t *x){
+  //left와 정반대
+  node_t *y;
+  y = x->left;
+  x->left = y->right;
+  if (y->right != t->nil) {
+      y->right->parent = x;
+  }
+  y->parent = x->parent;
+  if (x->parent == t->nil)
+      t->root = y;
+  else if (x == x->parent->left)
+      x->parent->left = y;
+  else
+      x->parent->right = y;
+  y->right = x;
+  x->parent = y;
+}
+
+void rbtree_insert_fixup(rbtree *t, node_t *z)
+{
   // 이게 뭘까? 포인터로 아무것도 지정 안해줫으니 y는 nil인 상황임.
   node_t *y;
 
   //삽입은 항상 레드로 하기 때문에 while문에 무조건 걸리게 되어있다.
-  while(z->parent->color == RBTREE_RED){
-
+  while(z->parent->color == RBTREE_RED)
+  {
     //아빠가 할아버지 왼쪽에 있는 경우(나는 왼쪽일수도 오른쪽일 수도 있음)
-    if (z->parent == z->parent->parent->left);
+    if (z->parent == z->parent->parent->left)
     {
       //빈포인터 y에다가 삼촌(아빠 오른쪽)을 담아
       y = z->parent->parent->right;
@@ -109,21 +129,53 @@ void rbtree_insert_fixup(rbtree *t, node_t *z){
         // 할아버지에서 다시 확인 시작 (이거 코드 재밌네 ㅋㅋ z를 할아버지로 바꿔주면 할아버지에서 다시 확인하는 꼴임)
         z = z->parent->parent;
       }
-      
-      //case2: 나 레드+오른쪽 / 아빠 레드+왼쪽 / 삼촌 블랙 
-      //아빠를 기준으로 잡고, 왼쪽으로 회전하고, case3방식으로 해결
       else
       {
+        //case2: 나 레드+오른쪽 / 아빠 레드+왼쪽 / 삼촌 블랙 
+        //아빠를 기준으로 잡고, 왼쪽으로 회전하고, case3방식으로 해결 
+        //어차피 case3로 해결할거라 if문으로 case2인지만 체크해 case2면 case3로 만들고 if문 탈출하고 case3해결 시작 
         if(z== z->parent->right){
           // 아빠를 기준으로 잡고
           z = z->parent;
           // 왼쪽으로 회전
           left_rotation(t,z);
         }
-        //Case3는 rotation하고난 뒤에 하자
+      }
+      //case3: 나 레드+왼쪽/ 아빠 레드+왼쪽/ 삼촌 블랙
+      //아빠를 검은색이로 바꾸고 할아버지를 레드로 바꿔 그리고 오른쪽 회전
+      z->parent->color = RBTREE_BLACK;
+      z->parent->parent->color = RBTREE_RED;
+      right_rotation(t, z->parent->parent);
+    }
+
+    //아빠가 할아버지 오른쪽에 있는 경우
+    else
+    {
+      y = z->parent->parent->left;
+      // CASE 4 : 노드 z의 삼촌 y가 적색인 경우
+      if (y->color == RBTREE_RED) 
+      {
+        z->parent->color = RBTREE_BLACK;
+        y->color = RBTREE_BLACK;
+        z->parent->parent->color = RBTREE_RED;
+        z = z->parent->parent;
+      }       
+      // CASE 5 : z의 삼촌 y가 흑색이며의 z가 오른쪽 자식인 경우
+      else 
+      {
+        if (z == z->parent->left) 
+        {
+          z = z->parent;
+          right_rotation(t, z);
+        }
+        // CASE 6 : z의 삼촌 y가 흑색이며의 z가 오른쪽 자식인 경우
+        z->parent->color = RBTREE_BLACK;
+        z->parent->parent->color = RBTREE_RED;
+        left_rotation(t, z->parent->parent);
       }
     }
   }
+  t->root->color = RBTREE_BLACK;
 }
 
 node_t *rbtree_insert(rbtree *t, const key_t key)
