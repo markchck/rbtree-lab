@@ -280,8 +280,8 @@ void test_rb_constraints(const key_t arr[], const size_t n) {
 
 // rbtree should manage distinct values
 void test_distinct_values() {
-  // const key_t entries[] = {10, 5, 8, 34, 67, 23, 156, 24, 2, 12};
-  const key_t entries[] = {10, 5};
+  const key_t entries[] = {10, 5, 8, 34, 67, 23, 156, 24, 2, 12};
+  // const key_t entries[] = {10, 5};
   const size_t n = sizeof(entries) / sizeof(entries[0]);
   test_rb_constraints(entries, n);
 }
@@ -372,12 +372,12 @@ int main(void) {
   test_insert_single(1024);
   test_find_single(512, 1024);
   test_erase_root(128);
-  // test_find_erase_fixed();
+  test_find_erase_fixed();
   test_minmax_suite();
   test_to_array_suite();
   test_distinct_values();
   test_duplicate_values();
-  // test_multi_instance();
+  test_multi_instance();
   // test_find_erase_rand(10000, 17);
   printf("Passed all tests!\n");
 }

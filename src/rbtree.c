@@ -60,7 +60,7 @@ void delete_rbtree(rbtree *t) {
   free(t); //마지막으로 t 자체가 차지하고 있는 공간도 없애준다
 }
 
-void left_rotation(rbtree *t, node_t *x){
+void left_rotate(rbtree *t, node_t *x){
   //y구초제 생성
   node_t *y;
 
@@ -108,7 +108,7 @@ void left_rotation(rbtree *t, node_t *x){
       x->parent = y;
 }
 
-void right_rotation(rbtree *t, node_t *x){
+void right_rotate(rbtree *t, node_t *x){
   //left와 정반대
   node_t *y;
   y = x->left;
@@ -140,7 +140,6 @@ void rbtree_insert_fixup(rbtree *t, node_t *z)
     {
       //빈포인터 y에다가 삼촌(아빠 오른쪽)을 담아
       y = z->parent->parent->right;
-      
       //case1: 나, 아빠, 삼촌 모두 빨간색 (아빠가 흑색인 경우는 위반 아님) 
       if(y->color == RBTREE_RED)
       {
@@ -162,14 +161,14 @@ void rbtree_insert_fixup(rbtree *t, node_t *z)
           // 아빠를 기준으로 잡고
           z = z->parent;
           // 왼쪽으로 회전
-          left_rotation(t,z);
+          left_rotate(t,z);
         }
       
         //case3: 나 레드+왼쪽/ 아빠 레드+왼쪽/ 삼촌 블랙
         //아빠를 검은색이로 바꾸고 할아버지를 레드로 바꿔 그리고 오른쪽 회전
         z->parent->color = RBTREE_BLACK;
         z->parent->parent->color = RBTREE_RED;
-        right_rotation(t, z->parent->parent);
+        right_rotate(t, z->parent->parent);
       }
     }
     //아빠가 할아버지 오른쪽에 있는 경우
@@ -188,12 +187,12 @@ void rbtree_insert_fixup(rbtree *t, node_t *z)
         if (z == z->parent->left) 
         {
           z = z->parent;
-          right_rotation(t, z);
+          right_rotate(t, z);
         }
         // CASE 6 : z의 삼촌 y가 흑색이며의 z가 오른쪽 자식인 경우
         z->parent->color = RBTREE_BLACK;
         z->parent->parent->color = RBTREE_RED;
-        left_rotation(t, z->parent->parent);
+        left_rotate(t, z->parent->parent);
       }
     }
   }
@@ -246,6 +245,9 @@ node_t *rbtree_insert(rbtree *t, const key_t key)
     z->color = RBTREE_RED;
 
     rbtree_insert_fixup(t, z);
+    
+    //디버깅이 잘 안되니 이렇게 print로 찍어보는 방법 좋다!
+    printf("key: %d, color:%d, left:%d, right:%d, parent: %d \n \n", z->key, z->color, z->left->key, z->right->key, z->parent->key);
     return z;
 }
 
@@ -264,8 +266,8 @@ node_t *rbtree_find(const rbtree *t, const key_t key)
     }else{
       current = current->left;
     }
-    return NULL;
   }
+    return NULL;    
 }
 
 void rbtree_transplant(rbtree *t, node_t *u, node_t *v){
@@ -287,14 +289,6 @@ void rbtree_transplant(rbtree *t, node_t *u, node_t *v){
   v->parent = u->parent;
 }
 
-// node_t *tree_minimum(rbtree *t,node_t *y){
-//   while(y->left != t->nil)
-//   {
-//       y= y->left;
-//   }
-//   return y;
-// }
-
 void rbtree_erase_fixup(rbtree *t, node_t *x){
   node_t *w; ////w는 x의 형제를 의미함
 
@@ -313,7 +307,7 @@ void rbtree_erase_fixup(rbtree *t, node_t *x){
         //부모의 색을 레드로 바꿈 (한마디로 회전하기 전에 형제와 부모의 색을 바꿈)
         x->parent->color = RBTREE_RED;
         //부모를 기준으로 좌회전
-        left_rotation(t, x->parent);
+        left_rotate(t, x->parent);
         //회전해서 x의 형제가 바뀜
         w= x->parent->right;
       }
@@ -331,7 +325,7 @@ void rbtree_erase_fixup(rbtree *t, node_t *x){
       //     //회전할거니까 검은색이던 형제의 색을 레드로 바꿔주고
       //     w->color = RBTREE_RED;
       //     //우회전
-      //     right_rotation(t,w);
+      //     right_rotate(t,w);
       //     //회전해서 x의 형제가 바뀜
       //     w=x->parent->right;
       // }
@@ -342,7 +336,7 @@ void rbtree_erase_fixup(rbtree *t, node_t *x){
           //회전할거니까 검은색이던 형제의 색을 레드로 바꿔주고
           w->color = RBTREE_RED;
           //우회전
-          right_rotation(t,w);
+          right_rotate(t,w);
           //회전해서 x의 형제가 바뀜
           w=x->parent->right;
         }
@@ -351,7 +345,7 @@ void rbtree_erase_fixup(rbtree *t, node_t *x){
         w->color = x->parent->color;
         x->parent->color =RBTREE_BLACK;
         w->right->color = RBTREE_BLACK;
-        left_rotation(t, x->parent);
+        left_rotate(t, x->parent);
         x= t->root;
       }
     }
@@ -364,7 +358,7 @@ void rbtree_erase_fixup(rbtree *t, node_t *x){
       if (w->color == RBTREE_RED){
         w->color = RBTREE_BLACK;
         x->parent->color = RBTREE_RED;
-        right_rotation(t, x->parent);
+        right_rotate(t, x->parent);
         w = x->parent->left;
       }
 
@@ -378,19 +372,19 @@ void rbtree_erase_fixup(rbtree *t, node_t *x){
       // else if (w->left->color == RBTREE_BLACK){
       //     w->right->color = RBTREE_BLACK;
       //     w->color = RBTREE_RED;
-      //     left_rotation(t, w);
+      //     left_rotate(t, w);
       //     w = x->parent->left;
       // }
       // w->color = x->parent->color;
       // x->parent->color = RBTREE_BLACK;
       // w->left->color = RBTREE_BLACK;
-      // right_rotation(t, x->parent);
+      // right_rotate(t, x->parent);
       // x = t->root;
       else{
         if (w->left->color == RBTREE_BLACK) {
           w->right->color = RBTREE_BLACK;
           w->color = RBTREE_RED;
-          left_rotation(t, w);
+          left_rotate(t, w);
           w = x->parent->left;
         }
 
@@ -398,7 +392,7 @@ void rbtree_erase_fixup(rbtree *t, node_t *x){
         w->color = x->parent->color;
         x->parent->color = RBTREE_BLACK;
         w->left->color = RBTREE_BLACK;
-        right_rotation(t, x->parent);
+        right_rotate(t, x->parent);
         x = t->root;
       }
     }
@@ -482,28 +476,47 @@ int rbtree_erase(rbtree *t, node_t *p) {
   return 0;
 }
 
-void subtree_to_array(const rbtree *t, node_t *curr, key_t *arr, size_t n, size_t *count) {
-  if (curr == t->nil) {
-    return;
-  }
-  
-  subtree_to_array(t, curr->left, arr, n, count);
-  if (*count < n) {
-    arr[(*count)++] = curr->key;
-  }
-  else return;
-  subtree_to_array(t, curr->right, arr, n, count);
+// void subtree_to_array(const rbtree *t, node_t *curr, key_t *arr, size_t n, size_t *count) {
+//   if (curr == t->nil) {
+//     return;
+//   }
+//   subtree_to_array(t, curr->left, arr, n, count);
+//   if (*count < n) {
+//     arr[(*count)++] = curr->key;
+//   }
+//   else return;
+//   subtree_to_array(t, curr->right, arr, n, count);
+// }
 
+// int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
+//   // TODO: implement to_array
+//   if (t->root == t->nil) {
+//     return 0;
+//   }
+
+//   size_t cnt = 0;
+//   subtree_to_array(t, t->root, arr, n, &cnt); 
+//   return 0;
+// }
+
+
+// 강욱이 코드
+void ascending_array_walk(node_t *x, node_t *nil, key_t *arr, int *idx, const size_t n){
+  if (x != nil && *idx < n) {
+    //트리의 몇번째까지 배열로 만들어라라고 정해주는게 n이니 n까지만 배열로 만들기
+    // 중위순열도는 중
+    ascending_array_walk(x->left, nil, arr, idx, n); 
+    // idx가 0일 때 x key값이 arr에 들어가고 ascending_right가 시작 
+    arr[(*idx)++] = x->key;
+    ascending_array_walk(x->right, nil, arr, idx, n);
+  }
 }
-
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
   // TODO: implement to_array
-  if (t->root == t->nil) {
-    return 0;
-  }
-
-  size_t cnt = 0;
-  subtree_to_array(t, t->root, arr, n, &cnt); 
-  
+  int i = 0;
+  int * idx = &i; //i의 주소를 가리키고있는 포인터 idx를 만들어
+//   printf("Root key: %d, color:%d, parent: %d, left:%d, right:%d,  \n \n", t->root->key, t->root->color, t->root->parent->key, t->root->left->key, t->root->right->key);
+  ascending_array_walk(t->root, t->nil, arr, idx, n);
   return 0;
 }
+

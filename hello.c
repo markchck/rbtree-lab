@@ -22,6 +22,13 @@ int main(void)
 	// printf("%s\n", s);
 	// printf("%p \n", &(*s));
 
-	char *s;
-	printf("%p\n", s);
+	// char *s;
+	// printf("%p\n", s);
+
+	int i = 9;
+	// int *idx = &i;
+	int *idy = i;
+	// printf("%p\n", *idx);
+	printf("%p\n", &idy);
+	printf("%i\n", idy);
 }
